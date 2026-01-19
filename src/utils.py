@@ -33,4 +33,50 @@ def setup_ffmpeg():
         print(f"[Info] Using bundled FFmpeg from: {local_bin}")
         return True
     
-    return False
+    # Attempt to auto-download if missing
+    print("[Info] FFmpeg not found locally or globally. Attempting download...")
+    try:
+        download_ffmpeg(local_bin)
+        os.environ["PATH"] += os.pathsep + local_bin
+        return True
+    except Exception as e:
+        print(f"[Error] Failed to download FFmpeg: {e}")
+        return False
+
+def download_ffmpeg(bin_dir):
+    """
+    Download FFmpeg binaries from gyan.dev and extract them.
+    """
+    import urllib.request
+    import zipfile
+    
+    os.makedirs(bin_dir, exist_ok=True)
+    
+    url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+    zip_path = os.path.join(bin_dir, "ffmpeg.zip")
+    
+    print(f"  Downloading from {url}...")
+    urllib.request.urlretrieve(url, zip_path)
+    
+    print("  Extracting...")
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        # Extract specific files
+        for file in zip_ref.namelist():
+            if file.endswith("bin/ffmpeg.exe"):
+                 zip_ref.extract(file, bin_dir)
+                 # Move up
+                 source = os.path.join(bin_dir, file)
+                 target = os.path.join(bin_dir, "ffmpeg.exe")
+                 shutil.move(source, target)
+                 
+            elif file.endswith("bin/ffprobe.exe"):
+                 zip_ref.extract(file, bin_dir)
+                 source = os.path.join(bin_dir, file)
+                 target = os.path.join(bin_dir, "ffprobe.exe")
+                 shutil.move(source, target)
+
+    # Cleanup
+    os.remove(zip_path)
+    # Remove extracted subdirectory if empty or needed
+    # (Simplified cleanup, main files are moved)
+    print("  FFmpeg installed successfully.")
