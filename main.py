@@ -27,6 +27,13 @@ def main():
     # Metadata args (only for single URL mode)
     parser.add_argument("--artist", help="Artist Name (for tagging)")
     parser.add_argument("--album", help="Album Name (for tagging)")
+
+    # Authentication
+    parser.add_argument(
+        "--browser",
+        choices=['chrome', 'edge', 'firefox', 'opera', 'brave', 'chromium', 'safari', 'vivaldi'],
+        help="Browser to extract cookies from (for private/age-restricted videos)"
+    )
     
     args = parser.parse_args()
     
@@ -50,7 +57,7 @@ def main():
                 
                 # Structure: Downloads/Artist/Album
                 output_dir = os.path.join(base_dir, artist, album_name)
-                download_playlist(url, output_dir, artist=artist, album=album_name)
+                download_playlist(url, output_dir, artist=artist, album=album_name, browser=args.browser)
 
     elif args.url:
         # Single mode
@@ -59,7 +66,7 @@ def main():
         
         # Structure: Downloads/Artist/Album
         output_dir = os.path.join(base_dir, artist, album)
-        download_playlist(args.url, output_dir, artist=args.artist, album=args.album)
+        download_playlist(args.url, output_dir, artist=args.artist, album=args.album, browser=args.browser)
 
 if __name__ == "__main__":
     main()
