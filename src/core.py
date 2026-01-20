@@ -3,7 +3,7 @@ import os
 import re
 import yt_dlp
 from .utils import setup_ffmpeg
-from .tagger import tag_files
+from .tagger import tag_files, tag_track_numbers
 
 
 def add_track_numbers(directory: str) -> None:
@@ -109,9 +109,12 @@ def download_playlist(url, output_dir, artist=None, album=None, browser=None):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
 
-    # Add track numbers if missing
+    # Add track numbers to filenames if missing
     add_track_numbers(output_dir)
 
-    # Automatic tagging if Artist/Album provided
+    # Always set track number metadata
+    tag_track_numbers(output_dir)
+
+    # Additional tagging if Artist/Album provided
     if artist and album:
         tag_files(output_dir, artist, album)

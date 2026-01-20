@@ -16,6 +16,42 @@ def extract_track_number(filename: str) -> str | None:
     return None
 
 
+def tag_track_numbers(directory: str) -> None:
+    """
+    Set track number metadata for all MP3 files based on filename.
+    """
+    mp3_files = sorted([f for f in os.listdir(directory) if f.endswith('.mp3')])
+
+    if not mp3_files:
+        return
+
+    print("[Tagger] Setting track numbers...")
+
+    count = 0
+    for filename in mp3_files:
+        filepath = os.path.join(directory, filename)
+        track_num = extract_track_number(filename)
+
+        if not track_num:
+            continue
+
+        try:
+            try:
+                audio = EasyID3(filepath)
+            except ID3NoHeaderError:
+                audio = EasyID3()
+                audio.save(filepath)
+
+            audio['tracknumber'] = str(int(track_num))
+            audio.save()
+            count += 1
+
+        except Exception as e:
+            print(f"  [Error] Failed to tag {filename}: {e}")
+
+    print(f"[Tagger] Track numbers set for {count} files.")
+
+
 def tag_files(directory, artist, album):
     """
     Iterate through MP3 files in a directory and update their Artist/Album/Track tags.
