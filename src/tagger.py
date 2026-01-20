@@ -42,8 +42,7 @@ def tag_files(directory, artist, album):
             # Extract and set track number from filename
             track_num = extract_track_number(filename)
             if track_num:
-                # Format: "track/total" (e.g., "1/12")
-                audio['tracknumber'] = f"{int(track_num)}/{total_tracks}"
+                audio['tracknumber'] = str(int(track_num))
 
             audio.save()
             count += 1
