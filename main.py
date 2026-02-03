@@ -2,7 +2,30 @@
 import argparse
 import yaml
 import os
+import subprocess
+import sys
 from src.core import download_playlist
+
+
+def update_ytdlp():
+    """yt-dlp를 최신 버전으로 업데이트합니다."""
+    print("[yt-dlp] Checking for updates...")
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "--upgrade", "yt-dlp"],
+            capture_output=True,
+            text=True,
+            encoding='utf-8'
+        )
+        if "Successfully installed" in result.stdout:
+            print("[yt-dlp] Updated to latest version!")
+        elif "Requirement already satisfied" in result.stdout:
+            print("[yt-dlp] Already up to date.")
+        else:
+            print("[yt-dlp] Update check completed.")
+    except Exception as e:
+        print(f"[yt-dlp] Warning: Could not update yt-dlp: {e}")
+        print("[yt-dlp] Continuing with current version...")
 
 def load_library(library_path):
     if not os.path.exists(library_path):
@@ -17,6 +40,10 @@ def load_library(library_path):
             return None
 
 def main():
+    # yt-dlp 자동 업데이트 (YouTube 차단 대응)
+    update_ytdlp()
+    print()
+
     parser = argparse.ArgumentParser(description="DownTune: High-quality music downloader.")
     
     # Mode selection
